@@ -1,87 +1,76 @@
-// Importamos la librería 'uuid' para generar identificadores únicos (UUID)
-const { v4: uuidv4 } = require('uuid');
-
-// Base de datos en memoria que almacena las películas
-let moviesDB = [
-  {
-    id: '1', // Identificador único de la película
-    title: 'El Padrino', // Título de la película
-    description: 'Drama criminal sobre la familia mafiosa Corleone', // Descripción
-    year: 1972 // Año de lanzamiento
-  },
-  {
-    id: '2',
-    title: 'Pulp Fiction',
-    description: 'Historias interconectadas de criminales en Los Ángeles',
-    year: 1994
-  }
-];
+// Importamos el pool de conexión a la base de datos desde la configuración
+const pool = require('../config/db');
 
 // Clase Movie que contiene métodos estáticos para realizar operaciones CRUD
+// (Crear, Leer, Actualizar, Eliminar) en la tabla "peliculas" de la base de datos.
 class Movie {
   /**
    * Obtiene todas las películas de la base de datos.
    * @returns {Array} Lista de todas las películas.
    */
-  static getAll() {
-    return moviesDB;
+  static async getAll() {
+    const { rows } = await pool.query('SELECT * FROM peliculas ORDER BY id');
+    return rows; // Devuelve todas las filas obtenidas de la consulta
   }
 
   /**
    * Busca una película por su ID.
-   * @param {string} id - El ID de la película a buscar.
+   * @param {number} id - El ID de la película a buscar.
    * @returns {Object|undefined} La película encontrada o undefined si no existe.
    */
-  static getById(id) {
-    return moviesDB.find(movie => movie.id === id);
+  static async getById(id) {
+    const { rows } = await pool.query('SELECT * FROM peliculas WHERE id = $1', [id]);
+    return rows[0]; // Devuelve la primera fila encontrada o undefined si no hay resultados
   }
 
   /**
-   * Crea una nueva película y la agrega a la base de datos.
+   * Crea una nueva película en la base de datos.
    * @param {Object} movieData - Datos de la nueva película (title, description, year).
+   * @param {string} movieData.title - Título de la película.
+   * @param {string} movieData.description - Descripción de la película.
+   * @param {number} movieData.year - Año de lanzamiento de la película.
    * @returns {Object} La película recién creada.
    */
-  static create(movieData) {
-    const newMovie = {
-      id: uuidv4(), // Genera un ID único para la nueva película
-      ...movieData // Combina los datos proporcionados con el nuevo ID
-    };
-    moviesDB.push(newMovie); // Agrega la nueva película a la base de datos
-    return newMovie; // Devuelve la película creada
+  static async create({ title, description, year }) {
+    const { rows } = await pool.query(
+      'INSERT INTO peliculas (titulo, descripcion, año) VALUES ($1, $2, $3) RETURNING *',
+      [title, description, year]
+    );
+    return rows[0]; // Devuelve la película creada
   }
 
   /**
-   * Actualiza una película existente por su ID.
-   * @param {string} id - El ID de la película a actualizar.
+   * Actualiza una película existente en la base de datos.
+   * @param {number} id - El ID de la película a actualizar.
    * @param {Object} updateData - Datos a actualizar (title, description, year).
+   * @param {string} [updateData.title] - Nuevo título de la película (opcional).
+   * @param {string} [updateData.description] - Nueva descripción de la película (opcional).
+   * @param {number} [updateData.year] - Nuevo año de lanzamiento de la película (opcional).
    * @returns {Object|null} La película actualizada o null si no se encuentra.
    */
-  static update(id, updateData) {
-    const movieIndex = moviesDB.findIndex(movie => movie.id === id); // Busca el índice de la película
-    if (movieIndex === -1) return null; // Si no se encuentra, devuelve null
-    
-    // Actualiza los datos de la película combinando los existentes con los nuevos
-    moviesDB[movieIndex] = {
-      ...moviesDB[movieIndex],
-      ...updateData
-    };
-    
-    return moviesDB[movieIndex]; // Devuelve la película actualizada
+  static async update(id, { title, description, year }) {
+    const { rows } = await pool.query(
+      `UPDATE peliculas 
+       SET titulo = COALESCE($1, titulo), 
+           descripcion = COALESCE($2, descripcion), 
+           año = COALESCE($3, año)
+       WHERE id = $4
+       RETURNING *`,
+      [title, description, year, id]
+    );
+    return rows[0]; // Devuelve la película actualizada o null si no se encuentra
   }
 
   /**
-   * Elimina una película por su ID.
-   * @param {string} id - El ID de la película a eliminar.
+   * Elimina una película de la base de datos por su ID.
+   * @param {number} id - El ID de la película a eliminar.
    * @returns {boolean} True si la película fue eliminada, false si no se encuentra.
    */
-  static delete(id) {
-    const movieIndex = moviesDB.findIndex(movie => movie.id === id); // Busca el índice de la película
-    if (movieIndex === -1) return false; // Si no se encuentra, devuelve false
-    
-    moviesDB.splice(movieIndex, 1); // Elimina la película del arreglo
-    return true; // Devuelve true para indicar que la eliminación fue exitosa
+  static async delete(id) {
+    const { rowCount } = await pool.query('DELETE FROM peliculas WHERE id = $1', [id]);
+    return rowCount > 0; // Devuelve true si se eliminó al menos una fila
   }
 }
 
-// Exporta la clase Movie para que pueda ser utilizada en otras partes de la aplicación
+// Exportamos la clase Movie para que pueda ser utilizada en otras partes de la aplicación
 module.exports = Movie;

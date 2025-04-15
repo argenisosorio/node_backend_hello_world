@@ -1,4 +1,4 @@
-// Importamos el modelo Movie, que contiene las operaciones CRUD para las películas
+// Importamos el modelo Movie, que contiene las operaciones CRUD para la base de datos
 const Movie = require('../models/movie');
 
 /**
@@ -6,9 +6,9 @@ const Movie = require('../models/movie');
  * @param {Object} req - Objeto de solicitud HTTP.
  * @param {Object} res - Objeto de respuesta HTTP.
  */
-const getAllMovies = (req, res) => {
+const getAllMovies = async (req, res) => {
   try {
-    const movies = Movie.getAll(); // Obtiene todas las películas del modelo
+    const movies = await Movie.getAll(); // Obtiene todas las películas desde la base de datos
     res.json(movies); // Devuelve las películas en formato JSON
   } catch (error) {
     res.status(500).json({ error: error.message }); // Manejo de errores del servidor
@@ -20,9 +20,9 @@ const getAllMovies = (req, res) => {
  * @param {Object} req - Objeto de solicitud HTTP.
  * @param {Object} res - Objeto de respuesta HTTP.
  */
-const getMovieById = (req, res) => {
+const getMovieById = async (req, res) => {
   try {
-    const movie = Movie.getById(req.params.id); // Busca la película por ID
+    const movie = await Movie.getById(req.params.id); // Busca la película por ID
     if (!movie) {
       return res.status(404).json({ error: 'Película no encontrada' }); // Si no existe, devuelve un error 404
     }
@@ -37,7 +37,7 @@ const getMovieById = (req, res) => {
  * @param {Object} req - Objeto de solicitud HTTP.
  * @param {Object} res - Objeto de respuesta HTTP.
  */
-const createMovie = (req, res) => {
+const createMovie = async (req, res) => {
   try {
     const { title, description, year } = req.body; // Extrae los datos del cuerpo de la solicitud
     
@@ -46,7 +46,7 @@ const createMovie = (req, res) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios' }); // Devuelve un error 400 si faltan datos
     }
     
-    const newMovie = Movie.create({ title, description, year }); // Crea una nueva película
+    const newMovie = await Movie.create({ title, description, year }); // Crea una nueva película
     res.status(201).json(newMovie); // Devuelve la película creada con un código 201
   } catch (error) {
     res.status(500).json({ error: error.message }); // Manejo de errores del servidor
@@ -58,9 +58,9 @@ const createMovie = (req, res) => {
  * @param {Object} req - Objeto de solicitud HTTP.
  * @param {Object} res - Objeto de respuesta HTTP.
  */
-const updateMovie = (req, res) => {
+const updateMovie = async (req, res) => {
   try {
-    const updatedMovie = Movie.update(req.params.id, req.body); // Actualiza la película con los datos proporcionados
+    const updatedMovie = await Movie.update(req.params.id, req.body); // Actualiza la película con los datos proporcionados
     if (!updatedMovie) {
       return res.status(404).json({ error: 'Película no encontrada' }); // Si no existe, devuelve un error 404
     }
@@ -75,9 +75,9 @@ const updateMovie = (req, res) => {
  * @param {Object} req - Objeto de solicitud HTTP.
  * @param {Object} res - Objeto de respuesta HTTP.
  */
-const deleteMovie = (req, res) => {
+const deleteMovie = async (req, res) => {
   try {
-    const success = Movie.delete(req.params.id); // Elimina la película por ID
+    const success = await Movie.delete(req.params.id); // Elimina la película por ID
     if (!success) {
       return res.status(404).json({ error: 'Película no encontrada' }); // Si no existe, devuelve un error 404
     }
@@ -87,7 +87,7 @@ const deleteMovie = (req, res) => {
   }
 };
 
-// Exporta los controladores para que puedan ser utilizados en las rutas
+// Exportamos los controladores para que puedan ser utilizados en las rutas
 module.exports = {
   getAllMovies,
   getMovieById,
