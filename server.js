@@ -1,22 +1,21 @@
 const express = require('express');
+const moviesRouter = require('./routes/movies');
 const app = express();
 const PORT = 3000;
 
-// Middleware to parse JSON
+// Middleware
 app.use(express.json());
 
-// GET route for example
-app.get('/', (req, res) => {
-  res.send('Hello from Node.js!');
+// Rutas
+app.use('/movies', moviesRouter);
+
+// Manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Algo salió mal!' });
 });
 
-// POST route to receive data
-app.post('/greet', (req, res) => {
-  const { name } = req.body;
-  res.json({ message: `Hi, ${name || 'unknown'}!` });
-});
-
-// Run de server
+// Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Servidor de películas corriendo en http://localhost:${PORT} 🎬`);
 });

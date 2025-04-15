@@ -1,42 +1,60 @@
-# Basic API REST Application with Node.js - Hello World Example
+# CRUD de Películas en Memoria con Node.js y Express
 
-## Versions
+## Versiones
 
 - **NodeJS**: v20.11.0  
 - **NPM**: v10.2.4  
 
-## Getting Started
+## Probar la aplicación
 
-### Install Packages
-
-1- Run the following command to install the required dependencies:
+1- Ejecute el siguiente comando para instalar las dependencias necesarias:
 
 ```bash
 $ npm install
 ```
 
-2- Run the server
+2- Ejecutar el servidor:
 
 ```bash
 $ node server.js
 ```
 
-You will see this message in the console:
+3- Ejemplos de Uso con CURL:
 
-Server running on http://localhost:3000
+Obtener todas las películas:
 
-3- Test your API
-
-GET: Open your browser in http://localhost:3000
-
-You'll see: Hello from Node.js!
-
-POST: Use Postman or curl to send data:
-    
 ```bash
-$ curl -X POST http://localhost:3000/greet -H "Content-Type: application/json" -d '{"name":"David"}'
+$ curl http://localhost:3000/movies
 ```
 
-Answer:
+-----
 
-{"message":"Hi, David!"}
+Obtener una película específica
+
+```bash
+$ curl http://localhost:3000/movies/1
+```
+
+-----
+
+Crear una nueva película
+
+```bash
+$ curl -X POST http://localhost:3000/movies -H "Content-Type: application/json" -d '{"title":"XXXXX","description":"XXXXXXX","year":2010}'
+```
+
+-----
+
+Actualizar una película
+
+```bash
+$ curl -X PUT http://localhost:3000/movies/1 -H "Content-Type: application/json" -d '{"description":"ZZZZZZZZZZZ"}'
+```
+
+-----
+
+Eliminar una película
+
+```bash
+$ curl -X DELETE http://localhost:3000/movies/1
+```
