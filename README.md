@@ -17,7 +17,9 @@ $ npm install
 
 2- Run the server
 
+```bash
 $ node server.js
+```
 
 You will see this message in the console:
 
@@ -31,7 +33,9 @@ You'll see: Hello from Node.js!
 
 POST: Use Postman or curl to send data:
     
+```bash
 $ curl -X POST http://localhost:3000/greet -H "Content-Type: application/json" -d '{"name":"David"}'
+```
 
 Answer:
 
