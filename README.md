@@ -41,4 +41,8 @@ Answer:
 
 {"message":"Hi, David!"}
 
-Note: A more complex example (In-Memory Movie CRUD with Node.js and Express) on the branch: test_crud
+Notes:
+
+-A more complex example (In-Memory Movie CRUD with Node.js and Express) on the branch: test_crud
+
+-Example to save and query data in psql db on the branch: test_crud_psql
